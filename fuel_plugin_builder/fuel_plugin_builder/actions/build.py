@@ -203,7 +203,7 @@ class BuildPluginV2(BaseBuildPlugin):
 
         :returns: dictionary with required data
         """
-        return {
+        data = {
             'name': self.full_name,
             'version': self.full_version,
             'summary': self.meta['title'],
@@ -212,6 +212,23 @@ class BuildPluginV2(BaseBuildPlugin):
             'homepage': self.meta.get('homepage'),
             'vendor': ', '.join(self.meta.get('authors', [])),
             'year': utils.get_current_year()}
+
+        uninst = utils.read_if_exist(
+            join_path(self.plugin_path, "uninstall.sh"))
+
+        preinst = utils.read_if_exist(
+            join_path(self.plugin_path, "pre_install.sh"))
+
+        postinst = utils.read_if_exist(
+            join_path(self.plugin_path, "post_install.sh"))
+
+        data.update(
+            {'postinstall_hook': postinst,
+             'preinstall_hook': preinst,
+             'uninstall_hook': uninst}
+        )
+
+        return data
 
     def build_ubuntu_repos(self, releases_paths):
         for repo_path in releases_paths:
